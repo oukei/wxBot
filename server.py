@@ -3,7 +3,7 @@
 
 from wxbot import *
 from flask import Flask
-import multiprocessing
+import threading
 
 class WXBotServer(WXBot):
     def handle_msg_all(self, msg):
@@ -19,19 +19,19 @@ class WXBotServer(WXBot):
 
 app = Flask(__name__)
 bot = WXBotServer()
-botProccess = None
-appProcess = None
+botThread = None
 
 @app.route("/")
 def hello():
-    return "Hello, %s" % bot.get_user_id('广超')
+    print bot.contact_list
+    return "Hello, %s" % bot.get_user_id(u'广超')
 
 def catchKeyboardInterrupt(fn):
     def wrapper(*args):
         try:
             return fn(*args)
         except KeyboardInterrupt:
-            botProccess.terminate()
+            # botThread.
             print '\n[*] 强制退出程序'
     return wrapper
 
@@ -40,13 +40,10 @@ def main():
     bot.DEBUG = True
     bot.conf['qr'] = 'png'
     print '[INFO] bot run.'
-    botProccess = multiprocessing.Process(target=bot.run)
-    # bot.run()
+    botThread = threading.Thread(target=bot.run)
+    botThread.start()
     print '[INFO] app run.'
-    # appProcess = multiprocessing.Process(target=app.run)
-    botProccess.start()
     app.run()
-    # appProcess.start()
 
 if __name__ == '__main__':
     main()
