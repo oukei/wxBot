@@ -2,10 +2,10 @@
 # coding: utf-8
 
 from wxbot import *
-from flask import Flask
+from flask import Flask, jsonify, request
 import threading
 import pickle
-import os
+import osx
 
 class WXBotServer(WXBot):
     def on_monitor(self):
@@ -30,8 +30,25 @@ path = 'wxbox.dat'
 
 @app.route("/")
 def hello():
-    # print bot.contact_list
     return "Hello, World"
+
+@app.route("/contract", methods=['GET'])
+def contractGet():
+    return jsonify(contract=bot.member_list)
+
+@app.route("/contract/update", methods=['POST'])
+def contractUpdate():
+    bot.get_contact()
+    return jsonify({'ret': 0, 'msg': 'success'})
+
+@app.route("/wxbox/dump", methods=['POST'])
+def wxboxDump():
+    bot.on_monitor()
+    return jsonify({'ret': 0, 'msg': 'success'})
+
+@app.route("/message/send", methods=['POST'])
+def sendText():
+    pass
 
 def catchKeyboardInterrupt(fn):
     def wrapper(*args):
@@ -50,15 +67,13 @@ def main():
         with open(path, 'rb') as f:
             bot = pickle.load(f)
         botThread = threading.Thread(target=bot.proc_msg)
-        botThread.setDaemon(True)
-        botThread.start()
     else:
         bot.DEBUG = True
         bot.conf['qr'] = 'png'
-        print '[INFO] bot run.'
         botThread = threading.Thread(target=bot.run)
-        botThread.setDaemon(True)
-        botThread.start()
+
+    botThread.setDaemon(True)
+    botThread.start()
 
     print '[INFO] app run.'
     app.debug = True
