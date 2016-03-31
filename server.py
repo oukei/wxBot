@@ -24,14 +24,13 @@ botThread = None
 @app.route("/")
 def hello():
     print bot.contact_list
-    return "Hello, %s" % bot.get_user_id(u'广超')
+    return "Hello, World"
 
 def catchKeyboardInterrupt(fn):
     def wrapper(*args):
         try:
             return fn(*args)
         except KeyboardInterrupt:
-            # botThread.
             print '\n[*] 强制退出程序'
     return wrapper
 
@@ -41,6 +40,7 @@ def main():
     bot.conf['qr'] = 'png'
     print '[INFO] bot run.'
     botThread = threading.Thread(target=bot.run)
+    botThread.setDaemon(True)
     botThread.start()
     print '[INFO] app run.'
     app.run()
