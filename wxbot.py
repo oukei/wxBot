@@ -333,6 +333,13 @@ class WXBot:
         """
         pass
 
+    def on_monitor(self):
+        """
+        call before revoke proc_msg
+        :return: None
+        """
+        pass
+
     @staticmethod
     def proc_at_info(msg):
         if not msg:
@@ -715,6 +722,7 @@ class WXBot:
         self.get_contact()
         print '[INFO] Get %d contacts' % len(self.contact_list)
         print '[INFO] Start to process messages .'
+        self.on_monitor()
         self.proc_msg()
 
     def get_uuid(self):
