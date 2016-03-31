@@ -2,10 +2,12 @@
 # coding: utf-8
 
 from wxbot import *
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import threading
 import pickle
 import os
+import redis
+import json
 
 class WXBotServer(WXBot):
     def on_monitor(self):
@@ -14,8 +16,10 @@ class WXBotServer(WXBot):
             pickle.dump(bot, f)
 
     def handle_msg_all(self, msg):
-        if msg['msg_type_id'] == 4 and msg['content']['type'] == 0:
-            self.send_msg_by_uid('hi', msg['user']['id'])
+        myRedis.rpush('wexin_msg_queue', json.dumps(msg))
+        # if msg['msg_type_id'] == 4 and msg['content']['type'] == 0:
+        #     self.send_msg_by_uid('hi', msg['user']['id'])
+        pass
 
 '''
     def schedule(self):
@@ -27,6 +31,7 @@ app = Flask(__name__)
 bot = WXBotServer()
 botThread = None
 path = 'wxbox.dat'
+myRedis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 @app.route("/")
 def hello():
