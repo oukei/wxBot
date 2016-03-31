@@ -5,7 +5,7 @@ from wxbot import *
 from flask import Flask, jsonify, request
 import threading
 import pickle
-import osx
+import os
 
 class WXBotServer(WXBot):
     def on_monitor(self):
