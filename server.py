@@ -28,7 +28,7 @@ class WXBotServer(WXBot):
 '''
 
 app = Flask(__name__)
-bot = WXBotServer()
+bot = None
 botThread = None
 path = 'wxbox.dat'
 myRedis = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -67,12 +67,14 @@ def catchKeyboardInterrupt(fn):
 def main():
     global bot
     global app
+
     if os.path.isfile(path):
         print 'read bot from file'
         with open(path, 'rb') as f:
             bot = pickle.load(f)
         botThread = threading.Thread(target=bot.proc_msg)
     else:
+        bot = WXBotServer()
         bot.DEBUG = True
         bot.conf['qr'] = 'png'
         botThread = threading.Thread(target=bot.run)
@@ -81,7 +83,7 @@ def main():
     botThread.start()
 
     print '[INFO] app run.'
-    app.debug = True
+    # app.debug = True
     app.run()
 
 if __name__ == '__main__':
